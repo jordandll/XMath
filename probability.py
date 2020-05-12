@@ -43,7 +43,8 @@ def shannon (P, b : int = None) -> float:
 	# Init return value.
 	res = 0
 	for p in P:
-		res += p*log(p)/log(b)
+		res += p*log(p)
+	res /= log(b)
 	return -res
 	
 	
