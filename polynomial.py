@@ -67,7 +67,7 @@ class Polynomial:
 		__doc__ = degN.__doc__
 		
 		self.coefficients = tuple(args)
-		self.f = degN(*args)
+		self.f = degN(*self.coefficients)
 	
 		
 	def __call__ (self, x = None):
@@ -127,7 +127,7 @@ class Polynomial:
 		if n < 1: raise ValueError('Argument Value Error:\tThe power of the derivative function must be a positive integer.')
 		elif n > self.degree(): raise ValueError('Argument Value Error:\The power of the derivative function cannot be greater than the degree of it\'s polynomial argument.')
 		
-		return Polynomial(c * factorial(i) // factorial(i-n) for i, c in enumerate(self.coefficients[n:], n))
+		return Polynomial(*tuple(c * factorial(i) // factorial(i-n) for i, c in enumerate(self.coefficients[n:], n)))
 		
 				
 class Quadratic (Polynomial):
@@ -150,7 +150,7 @@ class Quadratic (Polynomial):
 		1.)  (ex_x, ex_y):  The x, y coordinates of the extremum.  This is the point where the slope of the curve is zero.
 		2.)  w(y):  The width of the parabola at any valid y-coordinate, ‘y’."""
 		
-		a = (4*y - 4*ex_y) / (W**2 - 4*ex_x + 4*ex_x**2)
+		a = (4*y - 4*ex_y) / (w**2)
 		b = -2*a*ex_x
 		c = ex_y + a * ex_x**2
 		
@@ -177,7 +177,11 @@ class Quadratic (Polynomial):
 			\'f\', is positive, \'y\' cannot be less than the min(f).')
 		elif y == self.extremum[1]: return 0
 		
-		return sqrt(b**2 + 4*a*(y-c)) / a
+		a = self.coefficients[2]
+		b = self.coefficients[1]
+		c = self.coefficients[0]
+		
+		return abs(sqrt(b**2 + 4*a*(y-c)) / a)
 		
 		
 		
