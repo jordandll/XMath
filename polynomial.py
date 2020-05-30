@@ -1,6 +1,6 @@
 # polynomial.py
 
-from math import sqrt
+from math import sqrt, factorial
 from collections.abc import Sequence
 from numbers import Number
 
@@ -50,7 +50,15 @@ def add (p1, p2):
 	n = len(res)
 	res.extend(max(p1, p2, key=len)[n:])
 	return res
-	
+
+def sub (p1, p2):
+	""" Subtracts the two Polynomials, 'p1' and 'p2'
+	The arguments can be a sequence of coefficients or an instance of the Polynomial class. """
+	res = [x[0] - x[1] for x in zip(p1, p2)]
+	n = len(res)
+	T = max(p1, p2, key=len)[n:]
+	res.extend((-t for t in T) if len(p2) > len(p1) else T)
+	return res
 	
 class Polynomial:
 	""" The base class for all Polynomials """
@@ -60,6 +68,7 @@ class Polynomial:
 		
 		self.coefficients = tuple(args)
 		self.f = degN(*args)
+	
 		
 	def __call__ (self, x = None):
 		""" This method behaves differently depending on the argument type of 'x'.
@@ -110,8 +119,67 @@ class Polynomial:
 			raise TypeError('Argument Type Error:\tOnly a Polynomial or a sequence of coefficients can be added to a Polynomial.')
 			
 		return Polynomial(*res)
+		
+	def derivative (self, n: int = 1):
+		""" Perform the derivative function on this polynomial 'n' times.
+		Returns d^n(f)/(dx)^2, where 0 < n <= degree(f) and f(x) is this polynomial."""
+		
+		if n < 1: raise ValueError('Argument Value Error:\tThe power of the derivative function must be a positive integer.')
+		elif n > self.degree(): raise ValueError('Argument Value Error:\The power of the derivative function cannot be greater than the degree of it\'s polynomial argument.')
+		
+		return Polynomial(c * factorial(i) // factorial(i-n) for i, c in enumerate(self.coefficients[n:], n))
+		
 				
-			
+class Quadratic (Polynomial):
+	""" Quadratic Polynomial 
+	A quadratic polynomial is of the form:  f(x | a, b, c) = ax^2 + bx + c, where a != 0."""
+	
+	def __init__ (self, a, b, c):
+		""" Class initialiser """
+		pass
+		# Check parameters.
+		if a == 0: raise ValueError('Argument Value Error:\tThe leading coefficent of a polynomial cannot be equal to zero.')
+		Polynomial.__init__(self, c, b, a)
+		self._roots = roots(a, b, c)
+		self._extremum = extremum(a, b, c)
+	
+	@staticmethod
+	def from_props(ex_x, ex_y, w, y = 0):
+		""" Create a quadratic polynomial from a set of properties instead of coefficients.
+		The following properties of the parabola given by the polynomial to be created are used:
+		1.)  (ex_x, ex_y):  The x, y coordinates of the extremum.  This is the point where the slope of the curve is zero.
+		2.)  w(y):  The width of the parabola at any valid y-coordinate, ‘y’."""
+		
+		a = (4*y - 4*ex_y) / (W**2 - 4*ex_x + 4*ex_x**2)
+		b = -2*a*ex_x
+		c = ex_y + a * ex_x**2
+		
+		return Quadratic(a, b, c)
+	
+	@property	
+	def roots(self):
+		__doc__ = roots.__doc__
+		return self._roots
+		
+	@property
+	def extremum (self):
+		__doc__ = extremum.__doc__
+		return self._extremum
+		
+	def width (self, y = 0):
+		""" Caclulates the width of the parabola given by the quadratic polynomial at the y-coordinate, 'y'.
+		When 'y' equals zero, the distance between the two roots (if they exist) is returned.  
+		For example, width(0) = max(R) - min(R), where 'R' is the set of the roots of the polynomial.  
+		Zero is returned if only one root exists, and an exception is raised if none exist."""
+		if self.coefficients[2] < 0 and y > self.extremum[1]: raise ValueError('Argument Value Error:\tWhen the leading coefficient of a quadratic polynomial, \
+			\'f\', is negative, \'y\' cannot be greater than the max(f).')
+		elif self.coefficients[2] > 0 and y < self.extremum[1]: raise ValueError('Argument Value Error:\tWhen the leading coefficient of a quadratic polynomial, \
+			\'f\', is positive, \'y\' cannot be less than the min(f).')
+		elif y == self.extremum[1]: return 0
+		
+		return sqrt(b**2 + 4*a*(y-c)) / a
+		
+		
 		
 		
 		
