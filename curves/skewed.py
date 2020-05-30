@@ -8,7 +8,7 @@ def make_f (a, b, c, m, s):
 	""" Makes a function that gives a skewed parabola using the coefficients passed to this function.
 	The generalized and parametric form of said functon is defined in the documentation of this module."""
 	check_params(a, b, m)
-	return lambda x: a*x**2 + b*sqrt(m*x + s) + c
+	return lambda x: a*x + b*sqrt(m*x + s) + c
 	
 	
 def dir_x (m):
