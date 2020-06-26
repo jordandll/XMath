@@ -154,14 +154,44 @@ class Polynomial:
 		
 		return Polynomial(*tuple(c * factorial(i) // factorial(i-n) for i, c in enumerate(self.coefficients[n:], n)))
 		
-				
+
+class Linear (Polynomial):
+	""" Linear Polynomial
+	A linear polynomial is of the form:
+	f(x | a, b) := ax + b, where a != 0."""
+
+	def __init__(self, *args):
+		""" Initialize a linear polynomial of the form:
+		f(x | a, b) := ax + b, where a != 0. """
+		pass
+		if len(args) != 2: raise IndexError('Argument Count Error:\tA linear polynomial must be initialized with exactly 2 coefficients.')
+		elif args[1] == 0: raise ValueError('Argument Value Error:\tThe leading coefficent of a polynomial cannot be equal to zero.')
+		Polynomial.__init__(self, *args)
+
+		b, a = self.coefficients
+		self._roots = -b / a
+
+	@property	
+	def roots(self):
+		return self._roots
+
+	def _binom(self, n: int):
+		""" Invoke binomial theorem to raise this polynomial to the n'th power, where 'n' is a non-negative whole number."""
+		if n < 0: raise ValueError('Argument Value Error:\tRaising a polynomial to a negative power is prohibited (atleast for now).')
+		from num_theory import binomial_coefficient as bc
+		deg = n
+		b, a = self.coefficients
+		return Polynomial(*reversed(tuple(bc(n,m)*a**(n-m)*b**(m) for m in range(deg + 1))))
+
+	__pow__ = _binom
+
 class Quadratic (Polynomial):
 	""" Quadratic Polynomial 
 	A quadratic polynomial is of the form:  f(x | a, b, c) = ax^2 + bx + c, where a != 0."""
 	
 	def __init__ (self, a, b, c):
-		""" Class initialiser """
-		pass
+		""" Initialize a Quadtratic Polynomial of the form:
+		f(x | a, b, c) := ax^2 + bx + c, where a != 0."""
 		# Check parameters.
 		if a == 0: raise ValueError('Argument Value Error:\tThe leading coefficent of a polynomial cannot be equal to zero.')
 		Polynomial.__init__(self, c, b, a)

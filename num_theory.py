@@ -251,6 +251,13 @@ def carmichael_num(x) -> int:
 	tot_vals = [eulers_totient({p: r}) // 2 if p == 2 and r > 2 else eulers_totient({p: r}) for p, r in P.items()]
 	if len(tot_vals) == 1: return tot_vals[0]
 	return lcm(*tot_vals)
+
+def binomial_coefficient(n: int, m: int) -> int:
+	""" Binomial Coefficient
+	Returns n!/(m!(n-m)!).  This is used in combinatronics and binomial theorem."""
+	from math import factorial as f
+	return f(n)/(f(m)*f(n-m))
+
 	
 
 	
