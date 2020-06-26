@@ -104,6 +104,13 @@ class Polynomial:
 		elif isinstance(rhs, Sequence): res = Polynomial(*add(self.coefficients, rhs))
 		else: raise TypeError('Argument Type Error:\tOnly a Polynomial or a sequence of coefficients can be added to a Polynomial.')
 		return res
+
+	def __sub__ (self, rhs):
+		__doc__ = add.__doc__
+		if isinstance(rhs, Polynomial): res = Polynomial(*sub(self.coefficients, rhs.coefficients))
+		elif isinstance(rhs, Sequence): res = Polynomial(*sub(self.coefficients, rhs))
+		else: raise TypeError('Argument Type Error:\tOnly a Polynomial or a sequence of coefficients can be subtracted from a Polynomial.')
+		return res
 		
 	def __mul__ (self, rhs):
 		"""  Multiply two Polynomials """
@@ -119,13 +126,31 @@ class Polynomial:
 			raise TypeError('Argument Type Error:\tOnly a Polynomial or a sequence of coefficients can be added to a Polynomial.')
 			
 		return Polynomial(*res)
-		
+
+	def __pow__(self, n: int):
+		""" Raise this polynomial to the n'th power, where 'n' is a non-negative whole number. """
+		from itertools import product as cartesian_product
+		# Check 'n'.
+		if n < 0:
+			raise ValueError('Argument Value Error:\tRaising a polynomial to a negative power is prohibited (atleast for now).')
+		elif n > 1:
+			deg1 = self.degree() * n
+			C = [0 for i in range(deg1 + 1)]
+			for T in cartesian_product(range(len(self.coefficients)), repeat=n):
+				p = sum(T)
+				c = 1
+				for t in T: c *= self.coefficients[t]
+				C[p] += c
+			return Polynomial(*C)
+		elif n == 0: return 1
+		else: return Polynomial(*self.coefficients)
+
 	def derivative (self, n: int = 1):
 		""" Perform the derivative function on this polynomial 'n' times.
 		Returns d^n(f)/(dx)^2, where 0 < n <= degree(f) and f(x) is this polynomial."""
 		
 		if n < 1: raise ValueError('Argument Value Error:\tThe power of the derivative function must be a positive integer.')
-		elif n > self.degree(): raise ValueError('Argument Value Error:\The power of the derivative function cannot be greater than the degree of it\'s polynomial argument.')
+		elif n > self.degree(): raise ValueError('Argument Value Error:\tThe power of the derivative function cannot be greater than the degree of it\'s polynomial argument.')
 		
 		return Polynomial(*tuple(c * factorial(i) // factorial(i-n) for i, c in enumerate(self.coefficients[n:], n)))
 		
