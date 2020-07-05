@@ -66,6 +66,8 @@ class Polynomial:
 	def __init__ (self, *args):
 		__doc__ = degN.__doc__
 		
+		if args[-1] == 0: raise ValueError('Arugment Value Error:\tThe leading coefficient of a polynomial cannot be equal to zero.')
+
 		self.coefficients = tuple(args)
 		self.f = degN(*self.coefficients)
 	
@@ -154,6 +156,13 @@ class Polynomial:
 		
 		return Polynomial(*tuple(c * factorial(i) // factorial(i-n) for i, c in enumerate(self.coefficients[n:], n)))
 		
+	def anti_derivative(self, n: int =1):
+		"""Perform the anti-derivative, sometimes known as the primitive integral, function on this polynomial 'n' times, where n > 0."""
+		# Check parameter.
+		if n < 1: raise ValueError('Argument Value Error:\tThe power of the derivative function must be a positive integer.')
+		
+		C = tuple(c * factorial(i) / factorial(i+n) for i, c in enumerate(self.coefficients))
+		return tuple(0 for i in range(n)) + C
 
 class Linear (Polynomial):
 	""" Linear Polynomial
@@ -163,17 +172,22 @@ class Linear (Polynomial):
 	def __init__(self, *args):
 		""" Initialize a linear polynomial of the form:
 		f(x | a, b) := ax + b, where a != 0. """
-		pass
 		if len(args) != 2: raise IndexError('Argument Count Error:\tA linear polynomial must be initialized with exactly 2 coefficients.')
 		elif args[1] == 0: raise ValueError('Argument Value Error:\tThe leading coefficent of a polynomial cannot be equal to zero.')
 		Polynomial.__init__(self, *args)
 
 		b, a = self.coefficients
-		self._roots = -b / a
+		self._root = -b / a
+
+	@staticmethod
+	def from_kw_args(a, b):
+		"""Initialize a linear polynomial from keyword arguments.  Said polynomial has the form:
+		f(x | a, b) := ax + b, where a != 0"""
+		return Linear(b, a)
 
 	@property	
-	def roots(self):
-		return self._roots
+	def root(self):
+		return self._root
 
 	def _binom(self, n: int):
 		""" Invoke binomial theorem to raise this polynomial to the n'th power, where 'n' is a non-negative whole number."""
@@ -185,9 +199,10 @@ class Linear (Polynomial):
 
 	__pow__ = _binom
 
+
 class Quadratic (Polynomial):
 	""" Quadratic Polynomial 
-	A quadratic polynomial is of the form:  f(x | a, b, c) = ax^2 + bx + c, where a != 0."""
+	A quadratic polynomial is of the form:  f(x | a, b, c) := ax^2 + bx + c, where a != 0."""
 	
 	def __init__ (self, a, b, c):
 		""" Initialize a Quadtratic Polynomial of the form:
@@ -197,6 +212,12 @@ class Quadratic (Polynomial):
 		Polynomial.__init__(self, c, b, a)
 		self._roots = roots(a, b, c)
 		self._extremum = extremum(a, b, c)
+
+	@staticmethod
+	def from_pos_args(*args):
+		if len(args) != 3: raise IndexError('Argument Count Error:\tA quadratic or degree two polynomial must be initialized with exactly three coefficients.')
+		return Quadratic(args[2], args[1], args[0])
+		
 	
 	@staticmethod
 	def from_props(ex_x, ex_y, w, y = 0):
@@ -237,6 +258,73 @@ class Quadratic (Polynomial):
 		c = self.coefficients[0]
 		
 		return abs(sqrt(b**2 + 4*a*(y-c)) / a)
+
+class Cubic (Polynomial):
+	"""A cubic polynomial is a third degree polynomial of the form:
+	f(x | a, b, c, d) := ax^3 + bx^2 + cx + d, where a != 0."""
+
+	def __init__(self, *args):
+		if len(args) != 4: raise IndexError('Argument Count Error:\tA cubic or 3rd degree polynomal must be initialized with exactly four coefficients, even if they are \
+			equal to zero.')
+		Polynomial.__init__(self, *args)
+
+		self._critical_points = self._find_critical_pnts()
+		self._inflection_pnt = self._find_inflection_pnt()
+
+	@staticmethod
+	def from_props(cp0x, cp0y, cp1x, cp1y):
+		"""Initialize a Cubic Polynomial from the x,y coordinates of a pair of critical points.
+		Parameters:
+			'cp0x' is the x-coordinate of the zero'th critical point.
+			'cp' stands for and denotes 'critical point';
+			'0' equals the index of the critical point;
+			And 'x' is the axis of the coordinate."""
+
+		# TODO:  Fix some issues with this method.
+		raise NotImplementedError('This method is under construction.')
+
+		# Calculate the direction of the curve, denoted as 'm'.
+		if cp0x == cp1x: raise ValueError('Argument Value Error:\tCritical points cannot be equal (atleast for now).')
+		elif cp0x > cp1x: m = 1
+		else: m = -1
+
+		# Compute the inflection point, denoted as IPx, IPy.
+		IPx = (cp1x - cp0x)/2
+		IPy = (cp0y + cp1y)/2
+
+		# Set the coefficients of the linear factors of 'g'.
+		a, c = 1, 1
+		b, d = -cp0x, -cp1x
+		g = Linear.from_kw_args(a, b) * Linear.from_kw_args(m*c, d)
+
+		# Calculate the parameters of 'f', denoted as 'p' and 'q', where f(x | p, q) := p(g.anti_derivative()) + q.
+		p = -cp1y*m*(6*a*c)**2 / ((2*a*d + m*b*c)*m*(c*b)**2 - m*(a*d + m*b*c)**3 - a*b*c*d*(a*d + m*b*c))
+		q = 2*IPy + cp1y * (m*(a*d + m*b*c)**3 - a*b*c*d*(a*d + m*b*c)) / ((2*a*d + m*b*c)*m*(c*b)**2 - m*(a*d + m*b*c)**3 - a*b*c*d*(a*d + m*b*c))
+		f = Polynomial(p) * Polynomial(*g.anti_derivative()) + Polynomial(q)
+
+		return Cubic(*f.coefficients)
+
+	@property
+	def critical_points(self):
+		return self._critical_points
+
+	@property
+	def inflection_point(self):
+		return self._inflection_pnt
+
+	def _find_critical_pnts(self):
+		""" A 'private' method to find the critical points of the curve given by this polynomial.
+		Returns an n-tuple of x,y coordinates, where 'n' is the number of roots in the derivative of this polynomial and 'n' in {0, 1, 2}."""
+		# Find the roots of the derivative, denoted as 'p2'.  These are the x-coordinates of each critical point.
+		df = self.derivative()
+		p2 = Quadratic(df.coefficients[2], df.coefficients[1], df.coefficients[0])
+		return tuple((r, self.f(r)) for r in p2.roots)
+
+	def _find_inflection_pnt(self):
+		d2f = self.derivative(2)
+		p1 = Linear(*d2f.coefficients)
+		return (p1.root, self.f(p1.root))
+
 		
 		
 		

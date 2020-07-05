@@ -116,6 +116,7 @@ def _gcd(a: int, b: int, *args) -> int:
 
 def euclid_algo(a: int, b: int) -> int:
 	"""Euclidean Algorithm:
+	
 	Computes the greatest common divisor(GCD) of 'a' and 'b' by 
 	implementing the Euclidean algorithm.
 	This function has a computational complexity of log10(max(a, b))*5."""	
@@ -212,7 +213,7 @@ def sieve(n: int = 100):
 	return l
 
 def factor(n: int) -> dict:
-	""" Finds the prime factors and powers of 'n' and returns them as a dictionary with the keys beings the set of prime factors and the corresponding values being the prime powers.
+	""" Finds the prime factors and powers of 'n' and returns them as a dictionary with the keys beings the set of prime factors and their associated values being the prime powers.
 	This implementation has a computational complexity of O(sqrt(n)).  Note that there are faster algorithms, which should be implemented later."""
 	# Generate a list of primes, 'p', up to the square root of 'n' rounded up.
 	from math import ceil, floor
