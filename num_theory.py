@@ -1,7 +1,7 @@
 # Modular Exponentiation
 def mod_exp(b: int, a: int, n: int) -> int:
     """Fast Modular Exponentiation:
-    Raises 'm' to the 'a' power modulo 'n'.  
+    Raises 'b' to the 'a' power modulo 'n'.  
     This implementation has a computational complexity of O(log2(a))."""    
     res = 1
     for i in range(a.bit_length()):

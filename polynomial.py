@@ -273,36 +273,24 @@ class Cubic (Polynomial):
 
 	@staticmethod
 	def from_props(cp0x, cp0y, cp1x, cp1y):
-		"""Initialize a Cubic Polynomial from the x,y coordinates of a pair of critical points.
+		"""Initialize a Cubic Polynomial from the x,y coordinates of a pair of critical points.  
+		This is very useful in interpolation.  See /doc/CubicFromProps for more info.
 		Parameters:
 			'cp0x' is the x-coordinate of the zero'th critical point.
 			'cp' stands for and denotes 'critical point';
 			'0' equals the index of the critical point;
 			And 'x' is the axis of the coordinate."""
 
-		# TODO:  Fix some issues with this method.
-		raise NotImplementedError('This method is under construction.')
+		# Calculate the x-coordinate of inflection point, denoted as IPx.
+		IPx = (cp1x + cp0x)/2
 
-		# Calculate the direction of the curve, denoted as 'm'.
-		if cp0x == cp1x: raise ValueError('Argument Value Error:\tCritical points cannot be equal (atleast for now).')
-		elif cp0x > cp1x: m = 1
-		else: m = -1
+		# Calculate the leading coefficient, 'a', and then the remaining coefficients.
+		a = (cp1y - cp0y) / (cp1x**3 - cp0x**3 - 3*IPx*cp1x**2 + 3*cp0x*cp1x**2 - 3*cp1x*cp0x**2 + 3*IPx*cp0x**2)
+		b = -3*a*IPx
+		c = 3*a*cp0x*cp1x
+		d = cp0y - a*cp0x**3 - 3*a*cp1x*cp0x**2 + 3*a*IPx*cp0x**2
 
-		# Compute the inflection point, denoted as IPx, IPy.
-		IPx = (cp1x - cp0x)/2
-		IPy = (cp0y + cp1y)/2
-
-		# Set the coefficients of the linear factors of 'g'.
-		a, c = 1, 1
-		b, d = -cp0x, -cp1x
-		g = Linear.from_kw_args(a, b) * Linear.from_kw_args(m*c, d)
-
-		# Calculate the parameters of 'f', denoted as 'p' and 'q', where f(x | p, q) := p(g.anti_derivative()) + q.
-		p = -cp1y*m*(6*a*c)**2 / ((2*a*d + m*b*c)*m*(c*b)**2 - m*(a*d + m*b*c)**3 - a*b*c*d*(a*d + m*b*c))
-		q = 2*IPy + cp1y * (m*(a*d + m*b*c)**3 - a*b*c*d*(a*d + m*b*c)) / ((2*a*d + m*b*c)*m*(c*b)**2 - m*(a*d + m*b*c)**3 - a*b*c*d*(a*d + m*b*c))
-		f = Polynomial(p) * Polynomial(*g.anti_derivative()) + Polynomial(q)
-
-		return Cubic(*f.coefficients)
+		return Cubic(d, c, b, a)
 
 	@property
 	def critical_points(self):
