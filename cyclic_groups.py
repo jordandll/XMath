@@ -105,6 +105,15 @@ class CyclicGroup:
 			# Is a proper subgroup of the cyclic group, 'Cn', where 'n' is the modulus of this group.
 			self.seq[g] = [self.pow(g, i) for i in range(self.order())]
 		return res
+
+	@property
+	def generator(self):
+		return self._generator
+
+	@generator.setter
+	def generator(self, g):
+		if g not in self.genset: raise ValueError(f'Argument Value Error:\t{g} is not a generator of this cyclic group.')
+		self._generator = g
 		
 
 class AdditiveGroup(CyclicGroup):
@@ -168,6 +177,9 @@ class AdditiveGroup(CyclicGroup):
 		# The indices of the elements in the generating set are given by the set below.  In the case of a additive non-subgroup, the set of indices is equal to the generating set.
 		self.indices = set(num_theory.from_sieve(num_theory.coprime_sieve(set(prime_facts_order.keys()), o)))
 		self.genset = {self.seq[g][i] for i in self.indices}
+
+		# Set the generator intrinsic property.
+		self._generator = g
 
 	def modulus(self) -> int:
 		""" The modulus of the group.  This is determined by the argument passed to the parameter,'n', in the class initializer method."""
