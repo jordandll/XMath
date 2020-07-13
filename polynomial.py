@@ -71,6 +71,15 @@ class Polynomial:
 		self.coefficients = tuple(args)
 		self.f = degN(*self.coefficients)
 	
+	@staticmethod
+	def from_critical_points(*CP):
+		""" Initialize a polynomial from a set of critical points, denoted as 'CP', instead of a collection of coefficients(the default method of initialization).
+		Notes:
+			1.)  Each argument should be a pair of (x, y) coordinates for each critical point.
+			2.)  Said pair can be in the form of a builtin python 2-tuple or some other indexable or subscriptable collection such that for all arguments, 'a',
+			in 'CP', a[0] returns the x-coordinate of the critical point and a[1] returns the y-coordinate.
+			3.)  'CP' should be ordered under magnitude with respect to the x-coordinates -- i.e. CP[0].x < CP[1].x < ... < CP[-1].x."""
+		pass
 		
 	def __call__ (self, x = None):
 		""" This method behaves differently depending on the argument type of 'x'.
