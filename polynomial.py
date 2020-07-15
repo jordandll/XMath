@@ -72,14 +72,47 @@ class Polynomial:
 		self.f = degN(*self.coefficients)
 	
 	@staticmethod
-	def from_critical_points(*CP):
+	def from_critical_points(*args):
 		""" Initialize a polynomial from a set of critical points, denoted as 'CP', instead of a collection of coefficients(the default method of initialization).
 		Notes:
 			1.)  Each argument should be a pair of (x, y) coordinates for each critical point.
 			2.)  Said pair can be in the form of a builtin python 2-tuple or some other indexable or subscriptable collection such that for all arguments, 'a',
 			in 'CP', a[0] returns the x-coordinate of the critical point and a[1] returns the y-coordinate.
-			3.)  'CP' should be ordered under magnitude with respect to the x-coordinates -- i.e. CP[0].x < CP[1].x < ... < CP[-1].x."""
+			3.)  'CP' should be ordered under magnitude with respect to the x-coordinates -- i.e. CP[0].x < CP[1].x < ... < CP[-1].x.
+			
+		See doc/DegreeNFromProps for a description of the algorithm this method uses, which serves as a proof of concept."""
 		pass
+		# Check arguments
+		if len(args) != 3: raise NotImplementedError('Arguments Count Error:\tOnly three critical points are accepted for now.  Note, this is only for testing.')
+		
+		# NOTE:  As of writing this comment, only degree four polynomials are accepted (see doc/Degree4FromProps).  There is a generalized algorithm found in doc/DegreeNFromProps.
+		# TODO:  Implement the algorithm found in doc/DegreeNFromProps.
+		
+		# Create x, y coordinate class using the collections.namedtuple factory function.
+		from collections import namedtuple
+		Point = namedtuple('Point', ['x', 'y'])
+		
+		# Process arguments.
+		CP = [Point(cp[0], cp[1]) for cp in args]
+		
+		# Sort 'CP' under magnitude in ascending order with respect to the x-coordinate.
+		CP.sort(key = lambda itm: itm.x)
+		
+		# Calculate the inflection points, denoted as 'IP'.
+		IP = []
+		for i in range(len(CP)-1): IP.append(Point((CP[i].x + CP[i+1].x) / 2, (CP[i].y + CP[i+1].y) / 2))
+		
+		# Calculate the leading coefficient, denoted as 'a'.
+		a = (CP[0].y - IP[0].y) / (CP[0].x**4 - 2*(IP[0].x + IP[1].x)*CP[0].x**3 + 12*IP[0].x*IP[1].x*CP[0].x**2 - 2*(2*CP[2].x**3 - 3*(IP[0].x + IP[1].x)*CP[2].x**2 + 12*IP[0].x*IP[1].x*CP[2].x ) \
+			* (CP[0].x - IP[0].x) -10*IP[0].x**3 + IP[0].x**4)
+			
+		# Finally calculate the remaining coefficients.
+		b = -2*a*(IP[0].x + IP[1].x)
+		c = 12 * a * IP[0].x * IP[1].x
+		d = -2*a*(CP[2].x**3 - 3*(IP[0].x + IP[1].x)*CP[2].x**2 + 12*IP[0].x*IP[1].x*CP[2].x)
+		e = IP[0].y - (10*a*IP[0].x**3*IP[1].x - a*IP[0].x**4 + d*IP[0].x)
+		
+		return Polynomial(e, d, c, b, a)
 		
 	def __call__ (self, x = None):
 		""" This method behaves differently depending on the argument type of 'x'.
