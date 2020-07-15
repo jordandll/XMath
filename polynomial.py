@@ -178,13 +178,14 @@ class Linear (Polynomial):
 	A linear polynomial is of the form:
 	f(x | a, b) := ax + b, where a != 0."""
 
-	def __init__(self, *args):
+	def __init__(self, a, b):
 		""" Initialize a linear polynomial of the form:
 		f(x | a, b) := ax + b, where a != 0. """
-		if len(args) != 2: raise IndexError('Argument Count Error:\tA linear polynomial must be initialized with exactly 2 coefficients.')
-		elif args[1] == 0: raise ValueError('Argument Value Error:\tThe leading coefficent of a polynomial cannot be equal to zero.')
-		Polynomial.__init__(self, *args)
-
+		
+		if a == 0: raise ValueError('Argument Value Error:\tThe leading coefficent of a polynomial cannot be equal to zero.')
+		
+		Polynomial.__init__(self, b, a)
+		
 		b, a = self.coefficients
 		self._root = -b / a
 
@@ -192,7 +193,15 @@ class Linear (Polynomial):
 	def from_kw_args(a, b):
 		"""Initialize a linear polynomial from keyword arguments.  Said polynomial has the form:
 		f(x | a, b) := ax + b, where a != 0"""
-		return Linear(b, a)
+		return Linear(a, b)
+		
+	@staticmethod
+	def from_pos_args(*args):
+		""" Initialize a linear polynomial of the form:
+		f(x | a, b) := ax + b, where a != 0. 
+		Note that 'b' = args[0] and 'a' = args[1]."""
+		if len(args) != 2: raise IndexError('Argument Count Error:\tA linear polynomial must be initialized with exactly 2 coefficients.')
+		return Linear(a=args[1], b=args[0])
 
 	@property	
 	def root(self):
@@ -319,7 +328,7 @@ class Cubic (Polynomial):
 
 	def _find_inflection_pnt(self):
 		d2f = self.derivative(2)
-		p1 = Linear(*d2f.coefficients)
+		p1 = Linear.from_pos_args(*d2f.coefficients)
 		return (p1.root, self.f(p1.root))
 
 		
