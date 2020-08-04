@@ -331,7 +331,39 @@ class Cubic (Polynomial):
 		p1 = Linear.from_pos_args(*d2f.coefficients)
 		return (p1.root, self.f(p1.root))
 
-		
+
+def find_cubic_linearity(f, Ix: float):
+	"""Let the argument, 'f', be a cubic polynomial and 'l' be defined as a linear polynomial of the form:
+	l(x | m, s) := mx + s, where m != 0.
+
+	Suppose that 'l' intesects 'f' at a point with an x-coordinate that is equal to the argument, 'Ix'.
+	As long as the point of intersection, ‘I’, is not equal to the inflection point of ‘f’, ‘IP’, 
+	it is possible to find  the coefficients of 'l' such that there is exactly one other point of incidence between ‘f’ and ‘l’ and ‘l’ is tangential to ‘f’ at that point.
+
+	If 'I == IP' then the only point at which ‘l’ is tangential to ‘f’ is the inflection point;  In that case ‘f’ minus ‘l’ is a complete cube of the form, '(ax+b)^3',
+	where a != 0.
+	
+	This function will find the coefficients of 'l' and return them in the form of an instance of the polynomial.Linear class.
+	
+	See doc/CubicLinearities.odt for more info."""
+	pass
+
+	# Check args.
+	if isinstance(f, Polynomial) == False: raise TypeError(f'Argument Type Error:\tOnly instances of the Polynomial class may be passed to the \'f\' parameter of {__name__}.')
+	if len(f) != 4: raise ValueError(f'Only degree 3 or cubic polynomials may be passed to \'f\'.')
+	
+	# Definitions
+	d, c, b, a = f.coefficients
+	p = Ix
+
+	# 'C' is the coefficients of the quotient of dividing 'f-l' by 'x-p', exluding the leading coefficient which requires 'm' to be known.
+	C = (a, a*p+b)
+
+	# Solve for 'm' and 's'.
+	m = a*p**2 + p*b + c - C[1]**2 / (4*C[0])
+	s = f(p) - m*p
+
+	return Linear(m, s)
 		
 		
 		
