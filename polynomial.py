@@ -2,6 +2,7 @@
 
 from math import sqrt, factorial
 from collections.abc import Sequence
+from collections import namedtuple
 from numbers import Number
 
 def deg2 (a, b, c):
@@ -72,7 +73,7 @@ class Polynomial:
 		self.f = degN(*self.coefficients)
 	
 	@staticmethod
-	def from_critical_points(*CP):
+	def from_critical_points(*args):
 		""" Initialize a polynomial from a set of critical points, denoted as 'CP', instead of a collection of coefficients(the default method of initialization).
 		Notes:
 			1.)  Each argument should be a pair of (x, y) coordinates for each critical point.
@@ -80,6 +81,23 @@ class Polynomial:
 			in 'CP', a[0] returns the x-coordinate of the critical point and a[1] returns the y-coordinate.
 			3.)  'CP' should be ordered under magnitude in ascending order with respect to the x-coordinates -- i.e. CP[0].x < CP[1].x < ... < CP[-1].x."""
 		pass
+		# The number of terms and coefficients in the resulting polynomial.
+		n = len(args) + 2
+		
+		# Initialize a list of coefficients
+		h = [0 for i in range(n)]
+		
+		# Define a named pair of x,y-coordinates as a 'Point'.
+		Point = namedtuple('Point', ['x', 'y'])
+		
+		# Convert the list of arguments to a list of Points.
+		CP = [Point(cp_x, cp_y) for cp_x, cp_y in args]
+		
+		# Coefficients found from the x,y-coordinates of every critical point.
+		#for i in range(len(CP)):
+		#	h[i] = 
+		
+		
 		
 	def __call__ (self, x = None):
 		""" This method behaves differently depending on the argument type of 'x'.
@@ -163,7 +181,7 @@ class Polynomial:
 		if n < 1: raise ValueError('Argument Value Error:\tThe power of the derivative function must be a positive integer.')
 		elif n > self.degree(): raise ValueError('Argument Value Error:\tThe power of the derivative function cannot be greater than the degree of it\'s polynomial argument.')
 		
-		return Polynomial(*tuple(c * factorial(i) // factorial(i-n) for i, c in enumerate(self.coefficients[n:], n)))
+		return Polynomial(*tuple(c * factorial(i) / factorial(i-n) for i, c in enumerate(self.coefficients[n:], n)))
 		
 	def anti_derivative(self, n: int =1):
 		"""Perform the anti-derivative, sometimes known as the primitive integral, function on this polynomial 'n' times, where n > 0."""
@@ -202,6 +220,9 @@ class Linear (Polynomial):
 		Note that 'b' = args[0] and 'a' = args[1]."""
 		if len(args) != 2: raise IndexError('Argument Count Error:\tA linear polynomial must be initialized with exactly 2 coefficients.')
 		return Linear(a=args[1], b=args[0])
+		
+	#@staticmethod
+	# from_tan_points = find_cubic_linearity
 
 	@property	
 	def root(self):
@@ -249,6 +270,27 @@ class Quadratic (Polynomial):
 		c = ex_y + a * ex_x**2
 		
 		return Quadratic(a, b, c)
+	
+	@staticmethod
+	def from_tan_points(f, Ix: float):
+		"""Let the argument, 'f', be a cubic polynomial and 'g' be defined as a quadratic polynomial of the form:
+		g(x | a, b, c) := ax^2 + bx + c, where a != 0. 
+		
+		Suppose the curves given by ‘f’ and ‘g’ intersect at a point denoted as 'I = (Ix, Iy)', and the coefficients of ‘f’ are known, while the coefficients of ‘g’ are not known;  
+		And the only other point of incidence between ‘f’ and ‘g’ is a tangential one.  With this information it is possible to find the coefficients if ‘g’.
+		
+		This method will initialize a Quadratic polynomial with said coefficients.
+		
+		"""
+		# Check arguments.
+		
+		
+		# Solve for coefficients of 'g'.
+		g2 = (Ix*f[2]*f[3]) / (Ix*f[3] + f[2])
+		g1 = f[3]*Ix**2 + Ix*f[2] - Ix*g2 + f[1] - (Ix*f[3]+f[2]-g2)**2 / (4*f[3])
+		g0 = f(Ix) - Ix*g1 - g2*Ix**2
+		
+		return Quadratic(g2, g1, g0)
 	
 	@property	
 	def roots(self):
