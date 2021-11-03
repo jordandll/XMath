@@ -259,6 +259,26 @@ def binomial_coefficient(n: int, m: int) -> int:
 	from math import factorial as f
 	return f(n)/(f(m)*f(n-m))
 
+def fib (n: int) -> int:
+	""" Returns the n'th Fibonacci number. 
+	Note that this function uses zero style indexing, meaning that the first Fibonacci number has an index
+	of zero (n=0)."""
+	f_p, f_c= 0, 1
+	for i in range(n):
+		f_n = f_c + f_p
+		f_p = f_c
+		f_c = f_n
+	return f_c
+	
+def fib_seq (n: int) -> int:
+	""" Generates a Fibonacci sequence with a length of n+1.  """
+	f_p, f_c= 0, 1
+	yield f_c
+	for i in range(n):
+		f_n = f_c + f_p
+		f_p = f_c
+		f_c = f_n
+		yield f_c
 	
 
 	
