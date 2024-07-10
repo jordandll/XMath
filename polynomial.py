@@ -7,12 +7,12 @@ from numbers import Number
 
 def deg2 (a, b, c):
 	""" Generate a Degree 2 Polynomial 
-	Returns a functon, denoted as 'f(x | a, b, c)=ax^2+bx+c', where 'a', 'b', and 'c' are equal to the arguments passed to their respective parameters in this function."""
+	Returns a functon, f(x | a, b, c)=ax^2+bx+c, where 'a', 'b', and 'c' are equal to the arguments passed to their respective parameters in this function."""
 	return lambda x: a*x**2 + b*x + c
 	
 def degN (*args):
 	""" Generate a Degree N Polynomial
-	Returns a functon, denoted as 'f(x | a_0, a_1, ... , a_i, ... , a_N)= a_N*x^N + ... +a_i*x^i + ... + a_1*x + a_0, where N=len(args)-1.
+	Returns a functon, f(x | a_0, a_1, ..., a_N) = a_N*x^N +  ... + a_1*x + a_0, where N=len(args)-1.
 	The elements in 'args' equal the coefficients of their corresponding term in the function, 'f';  And the index of each element in 'args' is equal to the 
 	exponent of the variable, 'x', in it's corresponding term in 'f'.
 	
